@@ -13,10 +13,15 @@ const EnvSchema = z.object({
 const parsed = EnvSchema.safeParse(process.env);
 
 if (!parsed.success) {
+  const errors = parsed.error.flatten().fieldErrors;
   // eslint-disable-next-line no-console
-  console.error("[backend] invalid environment variables:");
+  console.error("[backend] Invalid or missing environment variables. Set these in your host (e.g. Render Dashboard → Environment):");
   // eslint-disable-next-line no-console
-  console.error(parsed.error.flatten().fieldErrors);
+  console.error(JSON.stringify(errors, null, 2));
+  if (errors.MONGODB_URI) {
+    // eslint-disable-next-line no-console
+    console.error("[backend] MONGODB_URI is required. Add it in Render: Environment → MONGODB_URI (e.g. your MongoDB Atlas connection string).");
+  }
   process.exit(1);
 }
 
