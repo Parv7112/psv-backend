@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { Contact } from "../models/Contact.js";
+import { sendLeadNotificationEmail } from "../services/mailer.js";
 
 const CreateLeadSchema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -34,6 +35,17 @@ leadRouter.post("/", async (req, res, next) => {
       budget: normalizeOptional(parsed.budget),
       message: parsed.message,
       source: normalizeOptional(parsed.source),
+    });
+
+    await sendLeadNotificationEmail({
+      name: lead.name,
+      email: lead.email,
+      company: lead.company,
+      phone: lead.phone,
+      service: lead.service,
+      budget: lead.budget,
+      message: lead.message,
+      source: lead.source,
     });
 
     res.status(201).json({
