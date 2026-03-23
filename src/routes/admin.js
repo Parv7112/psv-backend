@@ -4,6 +4,9 @@ import bcrypt from "bcryptjs";
 import { env } from "../config/env.js";
 import { signAdminToken } from "../middleware/adminAuth.js";
 import { Admin } from "../models/Admin.js";
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 const AdminLoginSchema = z.object({
   email: z.string().trim().email(),
