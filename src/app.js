@@ -9,12 +9,20 @@ import { errorHandler } from "./middleware/errorHandler.js";
 
 export function createApp() {
   const app = express();
+  const allowedOrigins = env.CORS_ORIGIN.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
   app.disable("x-powered-by");
   app.use(helmet());
   app.use(
     cors({
-      origin: env.CORS_ORIGIN,
+      origin(origin, callback) {
+        // Allow non-browser requests (no Origin header)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error(`CORS blocked for origin: ${origin}`));
+      },
       credentials: true,
     })
   );
